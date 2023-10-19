@@ -74,8 +74,7 @@ int minMax[8][2] =
 };
 
 
-RC_Receiver speed_receiver(8);
-RC_Receiver turn_receiver(6);
+RC_Receiver receiver(8, 6); //speed, turn
 
 void setup() {
   Wire.begin();
@@ -97,10 +96,7 @@ void setup() {
   
   
   //analogWrite(enA, 255);
-
-  speed_receiver.setMinMax(minMax);
-  turn_receiver.setMinMax(minMax);
-  
+  receiver.setMinMax(minMax);  
 }
 
 void loop() {
@@ -118,8 +114,8 @@ void loop() {
     analogWrite(enA, i);
     delay(100);
   }*/
-  driveMotors(orientation, speed_receiver.getMap(1));
-  turn(speed_receiver.getMap(1), turn_receiver.getMap(0));
+  driveMotors(orientation, receiver.getMap(1));
+  turn(receiver.getMap(1), receiver.getMap(2));
   delay(200);
   
 }
