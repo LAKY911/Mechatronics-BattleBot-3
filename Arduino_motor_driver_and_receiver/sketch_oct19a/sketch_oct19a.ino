@@ -74,7 +74,8 @@ int minMax[8][2] =
 };
 
 
-RC_Receiver receiver(8);
+RC_Receiver speed_receiver(8);
+RC_Receiver turn_receiver(6);
 
 void setup() {
   Wire.begin();
@@ -82,17 +83,23 @@ void setup() {
   Serial.begin(9600);
   icm20600.initialize();
   pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
   
   // Set initial rotation direction
   digitalWrite(in1, LOW);
   digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
   
   
   //analogWrite(enA, 255);
 
-  receiver.setMinMax(minMax);
+  speed_receiver.setMinMax(minMax);
+  turn_receiver.setMinMax(minMax);
   
 }
 
@@ -111,7 +118,8 @@ void loop() {
     analogWrite(enA, i);
     delay(100);
   }*/
-  driveMotors(orientation, receiver.getMap(1));
+  driveMotors(orientation, speed_receiver.getMap(1));
+  turn(speed_receiver.getMap(1), turn_receiver.getMap(0));
   delay(200);
   
 }
