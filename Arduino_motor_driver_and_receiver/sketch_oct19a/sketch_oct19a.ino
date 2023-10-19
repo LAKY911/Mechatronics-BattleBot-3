@@ -3,38 +3,15 @@
 #include <Wire.h>
 
 ICM20600 icm20600(true);
-#define enA 11
-#define enB 7
+#define enA 11 //Left motor
+#define enB 7 //Right motor
 #define in1 12
 #define in2 13
 #define in3 9
 #define in4 10
 int orientation = 1;
-void driveMotors(int orientation, long speed) {
-  if (speed >= 0 && speed <= 100) {
-    int adjustedspeed = map(speed, 0, 100, -255, 255);
-    int adjustedorientation = orientation * adjustedspeed;
-    if (adjustedorientation > 0) {
-        digitalWrite(in1, LOW);
-        digitalWrite(in2, HIGH);
-        digitalWrite(in3, LOW);
-        digitalWrite(in4, HIGH);
-    } else {
-        digitalWrite(in1, HIGH);
-        digitalWrite(in2, LOW);
-        digitalWrite(in3, HIGH);
-        digitalWrite(in4, LOW);
-    }
-    delay(100);
-    analogWrite(enA, abs(adjustedspeed));
-    Serial.println(adjustedspeed);
-  } else {
-    analogWrite(enA, 0);
-  }
 
-}
-
-void turn(long speed, long turn, int orientation){
+void driveMotors(long speed, long turn, int orientation){
   if (speed >= 0 && speed <= 100) {
     int adjustedspeed = map(speed, 0, 100, -255, 255);
     int adjustedorientation = orientation * adjustedspeed;
@@ -51,10 +28,23 @@ void turn(long speed, long turn, int orientation){
         digitalWrite(in4, LOW);
     }
     delay(100);
-    analogWrite(enB, abs(adjustedturn));
-    analogWrite(enA, abs(adjustedspeed));
+    if (adjustedturn > 0){
+      //Right motor engage more than left
+      analogWrite(enB, abs(adjustedturn));
+      analogWrite(enA, -abs(adjustedturn));
+    }
+    else if (adjustedturn < 0){
+      //left motor engage more
+      analogWrite(enB, -abs(adjustedturn));
+      analogWrite(enA, abs(adjustedturn));
+    }
+    else{
+      analogWrite(enA, abs(adjustedspeed));
+      analogWrite(enB, abs(adjustedspeed));
+    }
 
     Serial.println(adjustedturn);
+    Serial.println(adjustedspeed);
 
   } else {
     analogWrite(enB, 0);
@@ -119,7 +109,7 @@ void loop() {
     delay(100);
   }*/
 
-  turn(receiver.getMap(1), receiver.getMap(2), orientation);
+  driveMotors(receiver.getMap(1), receiver.getMap(2), orientation);
   delay(200);
   
 }
