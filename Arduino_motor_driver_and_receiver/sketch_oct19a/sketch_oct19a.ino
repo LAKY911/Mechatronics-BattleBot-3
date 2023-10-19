@@ -34,7 +34,7 @@ void driveMotors(int orientation, long speed) {
 
 }
 
-void turn(long speed, long turn){
+void turn(long speed, long turn, int orientation){
   if (speed >= 0 && speed <= 100) {
     int adjustedspeed = map(speed, 0, 100, -255, 255);
     int adjustedorientation = orientation * adjustedspeed;
@@ -52,9 +52,13 @@ void turn(long speed, long turn){
     }
     delay(100);
     analogWrite(enB, abs(adjustedturn));
+    analogWrite(enA, abs(adjustedspeed));
+
     Serial.println(adjustedturn);
+
   } else {
     analogWrite(enB, 0);
+    analogWrite(enA, 0);
   }
 
 }
@@ -114,8 +118,8 @@ void loop() {
     analogWrite(enA, i);
     delay(100);
   }*/
-  driveMotors(orientation, receiver.getMap(1));
-  turn(receiver.getMap(1), receiver.getMap(2));
+
+  turn(receiver.getMap(1), receiver.getMap(2), orientation);
   delay(200);
   
 }
