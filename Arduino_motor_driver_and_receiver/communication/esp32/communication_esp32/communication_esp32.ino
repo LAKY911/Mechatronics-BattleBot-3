@@ -1,4 +1,4 @@
-#define RXp2 16 // Reciever
+  #define RXp2 16 // Reciever
 #define TXp2 17 // Transmitter
 void setup() {
   // put your setup code here, to run once:
