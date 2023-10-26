@@ -10,13 +10,14 @@ ICM20600 icm20600(true);
 #define in3 9
 #define in4 10
 int orientation = 1;
-
-void driveMotors(long speed, long turn, int orientation){
-  if (speed >= 0 && speed <= 100) {
-    int adjustedspeed = map(speed, 0, 100, -255, 255);
-    int adjustedorientation = orientation * adjustedspeed;
-    int adjustedturn = map(turn, 0, 100, -255, 255);
-    if (adjustedorientation > 0) {
+long SR = 0;
+long SL = 0;
+void driveMotors(long hor, long ver, int orientation){
+  if (hor >= 0 && hor <= 100) {
+    int adjhor = map(hor, 0, 100, -255, 255);
+    //int adjustedorientation = orientation * adjustedspeed;
+    int adjver = map(ver, 0, 100, -255, 255);
+    /*if (adjustedorientation > 0) {
         digitalWrite(in1, LOW);
         digitalWrite(in2, HIGH);
         digitalWrite(in3, LOW);
@@ -26,14 +27,15 @@ void driveMotors(long speed, long turn, int orientation){
         digitalWrite(in2, LOW);
         digitalWrite(in3, HIGH);
         digitalWrite(in4, LOW);
-    }
+    }*/
     delay(100);
-    if (adjustedturn > 0){
+    /*
+    if (adjustedturn > 10){
       //Right motor engage more than left
       analogWrite(enB, abs(adjustedturn));
       analogWrite(enA, -abs(adjustedturn));
     }
-    else if (adjustedturn < 0){
+    else if (adjustedturn < -10){
       //left motor engage more
       analogWrite(enB, -abs(adjustedturn));
       analogWrite(enA, abs(adjustedturn));
@@ -49,6 +51,43 @@ void driveMotors(long speed, long turn, int orientation){
   } else {
     analogWrite(enB, 0);
     analogWrite(enA, 0);
+  }
+*/
+
+  //TOP RIGHT CORNER
+
+  if (adjhor > 0 && adjver > 0){
+    SR = adjver - adjhor/2.55;
+    SL = adjhor/2.55 + adjver;
+    if (SR < 0){
+      SR = 0;
+    }
+    if(SL > 255){
+      SL = 255;
+    }
+  }
+  //TOP LEFT CORNER
+  if (adjhor < 0 && adjver > 0){
+  SR = adjver - adjhor/2.55 ;
+  SL = adjhor/2.55 + adjver;
+  if (SL < 0){
+    SL = 0;
+  }
+  if(SR > 255){
+    SR = 255;
+  }
+  //BOTTOM LEFT CORNER
+  if (adjhor < 0 && adjver < 0){
+  SR = adjver + adjhor/2.55;
+  SL = 
+  if (SR < -255){
+    SR = -255;
+  }
+  if(SL > 255){
+    SL = 255;
+  }
+  }
+
   }
 
 }
