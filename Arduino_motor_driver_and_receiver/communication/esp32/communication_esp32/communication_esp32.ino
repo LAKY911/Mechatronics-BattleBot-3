@@ -4,13 +4,13 @@
 
 
 // Update these with values suitable for your network.
-const char* ssid = "Nicolai's iPhone";
-const char* password = "balle.stein";
+const char* ssid = "wifi";
+const char* password = "ahmed234";
 const char* mqtt_server = "broker.mqtt-dashboard.com";
 #define mqtt_port 8884
 #define MQTT_USER "test"
 #define MQTT_PASSWORD "test"
-#define MQTT_SERIAL_PUBLISH_CH "/ic/esp32/serialdata/uno/"
+#define MQTT_SERIAL_PUBLISH_CH "testtopic"
 
 WiFiClient wifiClient;
 
@@ -46,7 +46,7 @@ void reconnect() {
     if (client.connect(clientId.c_str(),MQTT_USER,MQTT_PASSWORD)) {
       Serial.println("connected");
       //Once connected, publish an announcement...
-      client.publish("/ic/presence/esp32/", "hello world");
+      client.publish("testtopic", "hello world");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
