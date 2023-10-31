@@ -4,53 +4,87 @@
 
 ICM20600 icm20600(true);
 #define enA 11 //Left motor
-#define enB 7 //Right motor
+#define enB 5 //Right motor
 #define in1 12
 #define in2 13
 #define in3 9
 #define in4 10
 int orientation = 1;
+long SR = 0;
+long SL = 0;
+float turnVariable = 2.55; 
 
-void driveMotors(long speed, long turn, int orientation){
-  if (speed >= 0 && speed <= 100) {
-    int adjustedspeed = map(speed, 0, 100, -255, 255);
-    int adjustedorientation = orientation * adjustedspeed;
-    int adjustedturn = map(turn, 0, 100, -255, 255);
-    if (adjustedorientation > 0) {
+void driveMotors(long ver, long hor, int orientation){
+  if (hor >= 0 && hor <= 100) {
+    int adjver = map(ver, 0, 100, -255, 255);
+    int adjustedorientation = orientation * adjver;
+    int adjhor = map(hor, 0, 100, 255, -255);
+    //Serial.println(adjhor);
+    //Serial.println(adjver);
+    //delay(200);
+    if (adjver > 0) {
         digitalWrite(in1, LOW);
         digitalWrite(in2, HIGH);
         digitalWrite(in3, LOW);
         digitalWrite(in4, HIGH);
-    } else {
+    }
+     else {
         digitalWrite(in1, HIGH);
         digitalWrite(in2, LOW);
         digitalWrite(in3, HIGH);
         digitalWrite(in4, LOW);
     }
-    delay(100);
-    if (adjustedturn > 0){
-      //Right motor engage more than left
-      analogWrite(enB, abs(adjustedturn));
-      analogWrite(enA, -abs(adjustedturn));
-    }
-    else if (adjustedturn < 0){
-      //left motor engage more
-      analogWrite(enB, -abs(adjustedturn));
-      analogWrite(enA, abs(adjustedturn));
-    }
-    else{
-      analogWrite(enA, abs(adjustedspeed));
-      analogWrite(enB, abs(adjustedspeed));
-    }
+   
 
-    Serial.println(adjustedturn);
-    Serial.println(adjustedspeed);
+  //TOP RIGHT CORNER
 
-  } else {
-    analogWrite(enB, 0);
-    analogWrite(enA, 0);
+  if (adjhor > 0 && adjver > 0){
+    SR = adjver - adjhor/turnVariable;
+    SL = adjver + adjhor/turnVariable;
+    if (SR < 0){
+      SR = 0;
+    }
+    if(SL > 255){
+      SL = 255;
+    }
+  }
+  //TOP LEFT CORNER
+  if (adjhor < 0 && adjver > 0){
+  SR = adjver - adjhor/turnVariable ;
+  SL = adjver + adjhor/turnVariable;
+  if (SL < 0){
+    SL = 0;
+  }
+  if(SR > 255){
+    SR = 255;
+  }
+  }
+  //BOTTOM LEFT CORNER
+  if (adjhor < 0 && adjver < 0){
+  SR = adjver + adjhor/turnVariable;
+  SL = adjver - adjhor/turnVariable;
+  if (SR < -255){
+    SR = -255;
+  }
+  if(SL > 0){
+    SL = 0;
+  }
+  }
+    //BOTTOM RIGHT CORNER
+  if (adjhor > 0 && adjver < 0){
+  SR = adjver + adjhor/turnVariable;
+  SL = adjver - adjhor/turnVariable;
+  if (SR > 0){
+    SR = 0;
+  }
+  if(SL < -255){
+    SL = -255;
   }
 
+  }
+  analogWrite(enA, abs(SL));
+  analogWrite(enB, abs(SR));
+  }
 }
 
 
@@ -110,6 +144,6 @@ void loop() {
   }*/
 
   driveMotors(receiver.getMap(1), receiver.getMap(2), orientation);
-  delay(200);
+  delay(100);
   
 }
