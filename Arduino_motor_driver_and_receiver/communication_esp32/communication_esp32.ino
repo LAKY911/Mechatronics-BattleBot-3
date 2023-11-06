@@ -1,128 +1,150 @@
-#include "Arduino.h"
 #include <WiFi.h>
-#include "esp_log.h"
-#include "esp_system.h"
-#include "esp_event.h"
-#include "mqtt_client.h"
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
+#include <ESPmDNS.h>
 
-#define SECURE_MQTT // Comment this line if you are not using MQTT over SSL
+/* change it with your ssid-password */
+const char* ssid = "dd-wrt";
+const char* password = "0000000000";
+/* this is the MDNS name of PC where you installed MQTT Server */
+const char* serverHostname = "iotsharing";
 
-#ifdef SECURE_MQTT
-#include "esp_tls.h"
+const char* ca_cert = \ 
+"-----BEGIN CERTIFICATE-----\n" \
+"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\n" \
+"-----END CERTIFICATE-----\n";
 
-// Let's Encrypt CA certificate. Change with the one you need
-static const unsigned char DSTroot_CA[] PROGMEM = R"EOF(
------BEGIN CERTIFICATE-----
-MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw
-TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh
-cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMTUwNjA0MTEwNDM4
-WhcNMzUwNjA0MTEwNDM4WjBPMQswCQYDVQQGEwJVUzEpMCcGA1UEChMgSW50ZXJu
-ZXQgU2VjdXJpdHkgUmVzZWFyY2ggR3JvdXAxFTATBgNVBAMTDElTUkcgUm9vdCBY
-MTCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBAK3oJHP0FDfzm54rVygc
-h77ct984kIxuPOZXoHj3dcKi/vVqbvYATyjb3miGbESTtrFj/RQSa78f0uoxmyF+
-0TM8ukj13Xnfs7j/EvEhmkvBioZxaUpmZmyPfjxwv60pIgbz5MDmgK7iS4+3mX6U
-A5/TR5d8mUgjU+g4rk8Kb4Mu0UlXjIB0ttov0DiNewNwIRt18jA8+o+u3dpjq+sW
-T8KOEUt+zwvo/7V3LvSye0rgTBIlDHCNAymg4VMk7BPZ7hm/ELNKjD+Jo2FR3qyH
-B5T0Y3HsLuJvW5iB4YlcNHlsdu87kGJ55tukmi8mxdAQ4Q7e2RCOFvu396j3x+UC
-B5iPNgiV5+I3lg02dZ77DnKxHZu8A/lJBdiB3QW0KtZB6awBdpUKD9jf1b0SHzUv
-KBds0pjBqAlkd25HN7rOrFleaJ1/ctaJxQZBKT5ZPt0m9STJEadao0xAH0ahmbWn
-OlFuhjuefXKnEgV4We0+UXgVCwOPjdAvBbI+e0ocS3MFEvzG6uBQE3xDk3SzynTn
-jh8BCNAw1FtxNrQHusEwMFxIt4I7mKZ9YIqioymCzLq9gwQbooMDQaHWBfEbwrbw
-qHyGO0aoSCqI3Haadr8faqU9GY/rOPNk3sgrDQoo//fb4hVC1CLQJ13hef4Y53CI
-rU7m2Ys6xt0nUW7/vGT1M0NPAgMBAAGjQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNV
-HRMBAf8EBTADAQH/MB0GA1UdDgQWBBR5tFnme7bl5AFzgAiIyBpY9umbbjANBgkq
-hkiG9w0BAQsFAAOCAgEAVR9YqbyyqFDQDLHYGmkgJykIrGF1XIpu+ILlaS/V9lZL
-ubhzEFnTIZd+50xx+7LSYK05qAvqFyFWhfFQDlnrzuBZ6brJFe+GnY+EgPbk6ZGQ
-3BebYhtF8GaV0nxvwuo77x/Py9auJ/GpsMiu/X1+mvoiBOv/2X/qkSsisRcOj/KK
-NFtY2PwByVS5uCbMiogziUwthDyC3+6WVwW6LLv3xLfHTjuCvjHIInNzktHCgKQ5
-ORAzI4JMPJ+GslWYHb4phowim57iaztXOoJwTdwJx4nLCgdNbOhdjsnvzqvHu7Ur
-TkXWStAmzOVyyghqpZXjFaH3pO3JLF+l+/+sKAIuvtd7u+Nxe5AW0wdeRlN8NwdC
-jNPElpzVmbUq4JUagEiuTDkHzsxHpFKVK7q4+63SM1N95R1NbdWhscdCb+ZAJzVc
-oyi3B43njTOQ5yOf+1CceWxG1bQVs5ZufpsMljq4Ui0/1lvh+wjChP4kqKOJ2qxq
-4RgqsahDYVvTH9w7jXbyLeiNdd8XM2w9U/t7y0Ff/9yi0GE44Za4rF2LN9d11TPA
-mRGunUHBcnWEvgJBQl9nJEiU0Zsnvgc/ubhPgXRR4Xq37Z0j4r7g1SgEEzwxA57d
-emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
------END CERTIFICATE-----
-)EOF";
-#endif // SECURE_MQTT
+/* create an instance of WiFiClientSecure */
+WiFiClientSecure espClient;
+PubSubClient client(espClient);
 
-esp_mqtt_client_config_t mqtt_cfg;
-esp_mqtt_client_handle_t client;
+/* topics */
+#define COUNTER_TOPIC    "smarthome/room1/counter"
 
-const char* WIFI_SSID = "NTB-DELL-G5 6364";
-const char* WIFI_PASSWD = "deltarobot";
+long lastMsg = 0;
+char msg[20];
+int counter = 0;
 
-const char* MQTT_HOST = "Your_broker_address296e152addcb45699e5e68d8e8926a66.s1.eu.hivemq.cloud";
-#ifdef SECURE_MQTT
-const uint32_t MQTT_PORT = 8883;
-#else
-const uint32_t MQTT_PORT = 1883;
-#endif // SECURE_MQTT
-const char* MQTT_USER = "battlerobot";
-const char* MQTT_PASSWD = "Abc12345";
+void receivedCallback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message received: ");
+  Serial.println(topic);
 
-static esp_err_t mqtt_event_handler (esp_mqtt_event_handle_t event) {
-	if (event->event_id == MQTT_EVENT_CONNECTED) {
-		ESP_LOGI ("TEST", "MQTT msgid= %d event: %d. MQTT_EVENT_CONNECTED", event->msg_id, event->event_id);
-		esp_mqtt_client_subscribe (client, "test/hello", 0);
-		esp_mqtt_client_publish (client, "test/status", "1", 1, 0, false);
-	} 
-	else if (event->event_id == MQTT_EVENT_DISCONNECTED) {
-		ESP_LOGI ("TEST", "MQTT event: %d. MQTT_EVENT_DISCONNECTED", event->event_id);
-		//esp_mqtt_client_reconnect (event->client); //not needed if autoconnect is enabled
-	} else  if (event->event_id == MQTT_EVENT_SUBSCRIBED) {
-		ESP_LOGI ("TEST", "MQTT msgid= %d event: %d. MQTT_EVENT_SUBSCRIBED", event->msg_id, event->event_id);
-	} else  if (event->event_id == MQTT_EVENT_UNSUBSCRIBED) {
-		ESP_LOGI ("TEST", "MQTT msgid= %d event: %d. MQTT_EVENT_UNSUBSCRIBED", event->msg_id, event->event_id);
-	} else  if (event->event_id == MQTT_EVENT_PUBLISHED) {
-		ESP_LOGI ("TEST", "MQTT event: %d. MQTT_EVENT_PUBLISHED", event->event_id);
-	} else  if (event->event_id == MQTT_EVENT_DATA) {
-		ESP_LOGI ("TEST", "MQTT msgid= %d event: %d. MQTT_EVENT_DATA", event->msg_id, event->event_id);
-		ESP_LOGI ("TEST", "Topic length %d. Data length %d", event->topic_len, event->data_len);
-		ESP_LOGI ("TEST","Incoming data: %.*s %.*s\n", event->topic_len, event->topic, event->data_len, event->data);
+  Serial.print("payload: ");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+  Serial.println("gucci");
 
-	} else  if (event->event_id == MQTT_EVENT_BEFORE_CONNECT) {
-		ESP_LOGI ("TEST", "MQTT event: %d. MQTT_EVENT_BEFORE_CONNECT", event->event_id);
-	}
-	return ESP_OK;
 }
 
-void setup () {
-	mqtt_cfg.host = MQTT_HOST;
-	mqtt_cfg.port = MQTT_PORT;
-	mqtt_cfg.username = MQTT_USER;
-	mqtt_cfg.password = MQTT_PASSWD;
-	mqtt_cfg.keepalive = 15;
-#ifdef SECURE_MQTT
-	mqtt_cfg.transport = MQTT_TRANSPORT_OVER_SSL;
-#else
-	mqtt_cfg.transport = MQTT_TRANSPORT_OVER_TCP;
-#endif // SECURE_MQTT
-	mqtt_cfg.event_handle = mqtt_event_handler;
-	mqtt_cfg.lwt_topic = "test/status";
-	mqtt_cfg.lwt_msg = "0";
-	mqtt_cfg.lwt_msg_len = 1;
-	
-	Serial.begin (115200);
-
-	WiFi.mode (WIFI_MODE_STA);
-	WiFi.begin (WIFI_SSID, WIFI_PASSWD);
-	while (!WiFi.isConnected ()) {
-		Serial.print ('.');
-		delay (100);
-	}
-	Serial.println ();
-#ifdef SECURE_MQTT
-	esp_err_t err = esp_tls_set_global_ca_store (DSTroot_CA, sizeof (DSTroot_CA));
-	ESP_LOGI ("TEST","CA store set. Error = %d %s", err, esp_err_to_name(err));
-#endif // SECURE_MQTT
-	client = esp_mqtt_client_init (&mqtt_cfg);
-	//esp_mqtt_client_register_event (client, ESP_EVENT_ANY_ID, mqtt_event_handler, client); // not implemented in current Arduino core
-	err = esp_mqtt_client_start (client);
-	ESP_LOGI ("TEST", "Client connect. Error = %d %s", err, esp_err_to_name (err));
+void mqttconnect() {
+  /* Loop until reconnected */
+  while (!client.connected()) {
+    Serial.print("MQTT connecting ...");
+    /* client ID */
+    String clientId = "ESP32Client";
+    /* connect now */
+    if (client.connect(clientId.c_str())) {
+      Serial.println("connected");
+      /* subscribe topic */
+    } else {
+      Serial.print("failed, status code =");
+      Serial.print(client.state());
+      Serial.println("try again in 5 seconds");
+      /* Wait 5 seconds before retrying */
+      delay(5000);
+    }
+  }
 }
 
-void loop () {	
-	esp_mqtt_client_publish (client, "test/bye", "data", 4, 0, false);
-	delay (2000);
+void setup() {
+  Serial.begin(115200);
+  // We start by connecting to a WiFi network
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  /* set led as output to control led on-off */
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  /*setup MDNS for ESP32 */
+  if (!MDNS.begin("esp32")) {
+      Serial.println("Error setting up MDNS responder!");
+      while(1) {
+          delay(1000);
+      }
+  }
+  /* get the IP address of server by MDNS name */
+  Serial.println("mDNS responder started");
+  IPAddress serverIp = MDNS.queryHost(serverHostname);
+  Serial.print("IP address of server: ");
+  Serial.println(serverIp.toString());
+  /* set SSL/TLS certificate */
+  espClient.setCACert(ca_cert);
+  /* configure the MQTT server with IPaddress and port */
+  client.setServer(serverIp, 8883);
+  /* this receivedCallback function will be invoked 
+  when client received subscribed topic */
+  client.setCallback(receivedCallback);
+  
+}
+void loop() {
+  /* if client was disconnected then try to reconnect again */
+  if (!client.connected()) {
+    mqttconnect();
+  }
+  /* this function will listen for incomming 
+  subscribed topic-process-invoke receivedCallback */
+  client.loop();
+  /* we increase counter every 3 secs
+  we count until 3 secs reached to avoid blocking program if using delay()*/
+  long now = millis();
+  if (now - lastMsg > 3000) {
+    lastMsg = now;
+    if (counter < 100) {
+      counter++;
+      snprintf (msg, 20, "%d", counter);
+      /* publish the message */
+      client.publish(COUNTER_TOPIC, msg);
+    }else {
+      counter = 0;  
+    }
+  }
 }
