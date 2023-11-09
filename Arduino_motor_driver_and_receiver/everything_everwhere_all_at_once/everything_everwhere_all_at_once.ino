@@ -35,7 +35,7 @@
 #define DEADZONE 10
 #define DIFF_VER 15
 #define DIFF_HOR 10
-
+int disconnected = 0;
 int orientation = 1;
 int SR = 0, SL = 0;
 float turnVariable = 2.55;
@@ -71,7 +71,8 @@ int readCurrentR(){
 
 void driveMotors(long ver, long hor) {
   if (ver <= -50 && hor <= -50) {  // Disconnected from the transmitter -> NEEDS TO BE DONE/PROCESSED LATER !!!
-    Serial.println("Disconnected from the transmitter");
+    //Serial.println("Disconnected from the transmitter");
+    disconnected = 1;
     SL = 0;
     SR = 0;
     analogWrite(pwmL, 0);  // write values to H-bridge -> motor
@@ -106,7 +107,7 @@ void driveMotors(long ver, long hor) {
       digitalWrite(dirL, HIGH);
       digitalWrite(dirR, HIGH);
     }
-
+  
 
 
     
@@ -160,20 +161,22 @@ void driveMotors(long ver, long hor) {
     }
 
 
+  }else{
+    disconnected = 0;
   }
   if (ver > 50 - DIFF_VER && ver < 50 + DIFF_VER && (hor < 50 - DIFF_HOR || hor > 50 + DIFF_HOR)) { // Differential drive area
     //Serial.println(map(hor, 0, 100, -255, 255));
     SL = map(hor, 0, 100, -255, 255);
     SR = SL;
   }
-  Serial.print("Ver: ");
-  Serial.print(ver);
-  Serial.print(", Hor: ");
+  //Serial.print("Ver: ");
+  /*Serial.print(ver);
+  Serial.print(";");
   Serial.print(hor);
-  Serial.print(", ");
+  Serial.print(";");
   Serial.print(SL);
-  Serial.print(", ");
-  Serial.println(SR);
+  Serial.print(";");
+  Serial.println(SR);*/
 
   analogWrite(pwmL, constrain(abs(SL), 0, 255));  // write values to H-bridge -> motor
   analogWrite(pwmR, constrain(abs(SR), 0, 255));
@@ -199,7 +202,7 @@ void setup() {
   Wire.begin();
 
   Serial.begin(9600);
-  Serial.println("Started...");
+  //Serial.println("Started...");
 
   pinMode(dirL, OUTPUT);  // Setup the output pins
   pinMode(pwmL, OUTPUT);
@@ -224,20 +227,20 @@ void setup() {
   receiver.setMinMax(minMax); // set minimum and maximum of the RC Receiver
 
   voltage = map(analogRead(VOLTAGE_PIN), 0, 1023, 0, 1390); // read the battery voltage 
-  Serial.println(voltage);
+  //Serial.println(voltage);
 
   total = 0;
   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
     readings[thisReading] = voltage;
     total += readings[thisReading];
   }
-  averageVoltage = total / numReadings;
+  averageVoltage = total / numReadings;/*
   Serial.print("First total: ");
   Serial.print(total);
   Serial.print(", ");
   Serial.println(averageVoltage);
   Serial.print(", ");
-  Serial.println(voltage);
+  Serial.println(voltage);*/
 }
 
 
@@ -298,10 +301,31 @@ void loop() {
   }
   else{
   digitalWrite(BMS_CUTOUT, LOW);
-  }
+  }/*
   Serial.print("LEFTCURRENT: ");
   Serial.println(readCurrentL());
   Serial.print("RIGHTCURRENT: ");
-  Serial.println(readCurrentR());
+  Serial.println(readCurrentR());*/
+  // Stuff we want on ESP32
+  Serial.print("v");
+  Serial.print(averageVoltage);
+  Serial.print(";");
 
+  Serial.print("l");
+  Serial.print(readCurrentL());
+  Serial.print(";");
+
+  Serial.print("r");
+  Serial.print(readCurrentR());
+  Serial.print(";");
+
+  Serial.print("w");
+  Serial.print(constrain(weaponVal, 0, 255));
+  Serial.print(";");
+  
+  Serial.print("d");
+  Serial.print(disconnected);
+  Serial.print(";");
+
+  Serial.print("\n");
 }
