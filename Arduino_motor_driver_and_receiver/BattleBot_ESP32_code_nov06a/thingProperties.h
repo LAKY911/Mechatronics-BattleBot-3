@@ -12,7 +12,9 @@ const char DEVICE_KEY[]  = SECRET_DEVICE_KEY;    // Secret device password
 
 float batteryVoltage;
 int weaponSpeed;
-int wheelSpeed;
+float leftCurrent;
+float rightCurrent;
+bool disconnectedBool;
 
 void initProperties(){
 
@@ -20,7 +22,9 @@ void initProperties(){
   ArduinoCloud.setSecretDeviceKey(DEVICE_KEY);
   ArduinoCloud.addProperty(batteryVoltage, READ, ON_CHANGE, NULL);
   ArduinoCloud.addProperty(weaponSpeed, READ, ON_CHANGE, NULL);
-  ArduinoCloud.addProperty(wheelSpeed, READ, ON_CHANGE, NULL);
+  ArduinoCloud.addProperty(leftCurrent, READ, ON_CHANGE, NULL);
+  ArduinoCloud.addProperty(rightCurrent, READ, ON_CHANGE, NULL);
+  ArduinoCloud.addProperty(disconnectedBool, READ, ON_CHANGE, NULL);
 
 }
 

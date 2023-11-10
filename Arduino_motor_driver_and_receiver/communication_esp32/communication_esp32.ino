@@ -34,31 +34,31 @@ void loop()
   if (Serial2.available()) {
     char incomingChar = Serial2.read();
     if (incomingChar == 'v'){
-      while (incomingChar != ";"){
+      while (incomingChar != ';'){
         voltage += Serial2.read();
       }
       receivedString += voltage ;
     }
     else if (incomingChar == 'l'){
-      while (incomingChar != ";"){
+      while (incomingChar != ';'){
         leftcurrent += Serial2.read();
       }
       receivedString += leftcurrent;
     }
     else if(incomingChar == 'r'){
-      while (incomingChar != ";"){
+      while (incomingChar != ';'){
         rightcurrent += Serial2.read();
       }
       receivedString += rightcurrent;
     }
     else if(incomingChar == 'w'){
-      while (incomingChar != ";"){
+      while (incomingChar != ';'){
         weapon += Serial2.read();
       }
       receivedString += weapon;
     }
     else if(incomingChar == 'd'){
-      while (incomingChar != ";"){
+      while (incomingChar != ';'){
         disconnected += Serial2.read();
       }
       receivedString += disconnected;
