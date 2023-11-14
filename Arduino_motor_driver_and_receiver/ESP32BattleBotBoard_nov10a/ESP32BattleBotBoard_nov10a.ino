@@ -103,10 +103,10 @@ void loop() {
       }
       disconnectedBool = disconnected.toInt();
       if (disconnectedBool == 1) {
-        disconnectedBool = true;
+        disconnectedBool = false;
       }
       else {
-        disconnectedBool = false;
+        disconnectedBool = true;
       }
       //receivedString += disconnected;
     }
@@ -121,6 +121,7 @@ void loop() {
       weapon = "";
     }
   }
+  delay(1000);
   Serial.println("Transmitting data: ");
   Serial.print(batteryVoltage);
   Serial.print(", ");
@@ -131,16 +132,6 @@ void loop() {
   Serial.print(rightCurrent);
   Serial.print(", ");
   Serial.println(disconnectedBool);
-
-  Serial.print(voltage);
-  Serial.print(", ");
-  Serial.print(weapon);
-  Serial.print(", ");
-  Serial.print(leftcurrent);
-  Serial.print(", ");
-  Serial.print(rightcurrent);
-  Serial.print(", ");
-  Serial.println(disconnected);
 }
 
 

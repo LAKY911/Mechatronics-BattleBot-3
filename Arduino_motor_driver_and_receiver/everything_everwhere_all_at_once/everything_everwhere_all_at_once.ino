@@ -161,13 +161,14 @@ void driveMotors(long ver, long hor) {
     }
 
 
-  }else{
-    disconnected = 0;
   }
   if (ver > 50 - DIFF_VER && ver < 50 + DIFF_VER && (hor < 50 - DIFF_HOR || hor > 50 + DIFF_HOR)) { // Differential drive area
     //Serial.println(map(hor, 0, 100, -255, 255));
     SL = map(hor, 0, 100, -255, 255);
     SR = SL;
+  }
+  if (!(ver <= -50 && hor <= -50)){
+    disconnected = 0;
   }
   //Serial.print("Ver: ");
   /*Serial.print(ver);
