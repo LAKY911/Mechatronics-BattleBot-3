@@ -38,7 +38,7 @@
 int disconnected = 0;
 int orientation = 1;
 int SR = 0, SL = 0;
-float turnVariable = 2.55;
+float turnVariable = 1.00;
 
 int weaponVal = 0, horizontalVal = 50, verticalVal = 50;
 
@@ -245,8 +245,8 @@ void setup() {
 
 
 void loop() {
-  /*Serial.print("Loop time: ");
-  Serial.println(millis() - prevTime);*/
+  Serial.print("Loop time: ");
+  Serial.println(millis() - prevTime);
 
   while (millis() - prevTime < 250) { // This while cycle limits the number of runs - one in every at least 100 ms 
     delay(5);
