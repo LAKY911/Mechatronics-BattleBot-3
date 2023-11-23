@@ -49,13 +49,15 @@ void setup() {
      The default is 0 (only errors).
      Maximum is 4
   */
-  setDebugMessageLevel(2);
+  setDebugMessageLevel(4);
   ArduinoCloud.printDebugInfo();
+  delay(3000);
 }
 
 void loop() {
-  ArduinoCloud.update();
-  // Your code here
+  if (ArduinoCloud.connected()){
+    ArduinoCloud.update();
+    // Your code here
   while (Serial2.available() > 0) {
     char incomingChar = Serial2.read();
     Serial.print(incomingChar);
@@ -121,17 +123,25 @@ void loop() {
       weapon = "";
     }
   }
-  delay(1000);
-  Serial.println("Transmitting data: ");
-  Serial.print(batteryVoltage);
-  Serial.print(", ");
-  Serial.print(weaponSpeed);
-  Serial.print(", ");
-  Serial.print(leftCurrent);
-  Serial.print(", ");
-  Serial.print(rightCurrent);
-  Serial.print(", ");
-  Serial.println(disconnectedBool);
+    delay(1000);
+    Serial.println("Transmitting data: ");
+    Serial.print(batteryVoltage);
+    Serial.print(", ");
+    Serial.print(weaponSpeed);
+    Serial.print(", ");
+    Serial.print(leftCurrent);
+    Serial.print(", ");
+    Serial.print(rightCurrent);
+    Serial.print(", ");
+    Serial.println(disconnectedBool);
+  }
+  else{
+    Serial.println("ArduinoCloudIot Error");
+    ArduinoCloud.update();
+    //ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+    ArduinoCloud.printDebugInfo();
+    delay(2000);
+  }
 }
 
 

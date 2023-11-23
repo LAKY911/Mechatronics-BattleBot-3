@@ -167,7 +167,7 @@ void driveMotors(long ver, long hor) {
     SL = map(hor, 0, 100, -255, 255);
     SR = SL;
   }
-  if (!(ver <= -50 && hor <= -50)){
+  if (ver > -50 && hor > -50){
     disconnected = 0;
   }
   //Serial.print("Ver: ");
@@ -246,8 +246,8 @@ void setup() {
 
 
 void loop() {
-  Serial.print("Loop time: ");
-  Serial.println(millis() - prevTime);
+  //Serial.print("Loop time: ");
+  //Serial.println(millis() - prevTime);
 
   while (millis() - prevTime < 250) { // This while cycle limits the number of runs - one in every at least 100 ms 
     delay(5);
