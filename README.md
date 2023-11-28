@@ -3,14 +3,9 @@ Team project for NTNU course TMM4150 - Machine Design and Mechatronics
 
 ### Components:
 + Arduino Uno
-+ ...
++ ESP 32
 
-### To-Do list
-- [x] Brainstorm BattleBot ideas
-- [ ] ...
-- [ ] ...
-- [ ] Win The Great Battle on 16th of November 2023 at NTNU :tada:
+### Filestructure
+ESP32: src -> main_esp32
+Arduino: src -> main_arduino
 
-### Wiring:
-|   Component   | Component pin | Arduino pin   |
-| ------------- | ------------- | ------------- |
