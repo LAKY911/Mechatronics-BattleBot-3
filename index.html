@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Combined Videos</title>
+  <style>
+    /* Styling for video elements */
+    video {
+      width: 900px;
+      height: 500px;
+    }
+
+    /* Styling for the video containers */
+    .video-container {
+      margin-bottom: 50px; /* Space between videos */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Styling for the third video structure */
+    .video-container:last-child {
+      margin-bottom: 0; /* No extra space after the last video */
+    }
+
+    /* Specific styling for the third video */
+    .video-wrapper {
+      width: 50%;
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      height: 400px;
+      transform: rotate(0deg);
+    }
+
+    .video-heading {
+      margin-bottom: 10px; /* Space between heading and video */
+    }
+  </style>
+</head>
+<body>
+  <!-- First Video -->
+  <div class="video-container">
+    <h2 class="video-heading">First fight</h2>
+    <video controls>
+      <source src="videos/video1.mov" type="video/mp4">
+    </video>
+  </div>
+
+  <hr> <!-- Optional separator between videos -->
+
+  <!-- Second Video -->
+  <div class="video-container">
+    <h2 class="video-heading">Second fight</h2>
+    <video controls>
+      <source src="videos/video2.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <hr> <!-- Optional separator between videos -->
+
+  <!-- Third Video Structure -->
+  <div class="video-container">
+    <div class="video-wrapper">
+      <h2 class="video-heading">Part 1 of final fight</h2>
+      <video controls>
+        <source src="videos/video5.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="video-wrapper">
+      <h2 class="video-heading">Part 2 of final fight</h2>
+      <video controls>
+        <source src="videos/video6.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</body>
+</html>
